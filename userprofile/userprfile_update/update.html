@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            padding: 20px;
+        }
+        .profile-container {
+            background-color: white;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .profile-header {
+            text-align: center;
+            position: relative;
+        }
+        .profile-header img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .profile-header h1 {
+            margin: 10px 0;
+        }
+        .edit-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+        .edit-icon img {
+            width: 24px;
+            height: 24px;
+        }
+        .favorites-section {
+            margin: 20px 0;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            background-color: #f9f9f9;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .edit-section {
+            display: none;
+            margin: 20px 0;
+        }
+        button, input[type="text"] {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            margin-top: 10px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        input[type="text"] {
+            width: calc(100% - 20px);
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <div class="profile-header">
+            <img id="profile-picture" src="default-profile.jpg" alt="Profile Picture">
+            <h1>Welcome, <span id="username"></span></h1>
+            <div class="edit-icon" onclick="toggleEdit()">
+                <img src="minor akshay\pen-icon.jpg" alt="Edit">
+            </div>
+        </div>
+
+        <div class="favorites-section">
+            <h2>Your Favorite Places:</h2>
+            <ul id="favorites-list"></ul>
+            <input type="text" id="new-favorite" placeholder="Add new favorite place">
+            <button onclick="addFavorite()">Add Favorite</button>
+        </div>
+
+        <div class="edit-section" id="edit-section">
+            <h2>Edit Profile</h2>
+            <input type="text" id="new-username" placeholder="Enter new username">
+            <button onclick="updateUsername()">Update Username</button>
+            <input type="file" id="profile-image-input" accept="image/*">
+            <button onclick="updateProfilePicture()">Update Profile Picture</button>
+        </div>
+    </div>
+
+    <script>
+        // Load user info from localStorage
+        const usernameDisplay = document.getElementById('username');
+        const profilePicture = document.getElementById('profile-picture');
+        const editSection = document.getElementById('edit-section');
+
+        usernameDisplay.textContent = localStorage.getItem('user') || 'Guest';
+        profilePicture.src = localStorage.getItem('profilePicture') || 'default-profile.jpg';
+
+        // Load favorites from localStorage
+        const favoritesList = document.getElementById('favorites-list');
+        const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+
+        if (favorites.length > 0) {
+            favorites.forEach(favorite => {
+                const li = document.createElement('li');
+                li.textContent = favorite;
+                favoritesList.appendChild(li);
+            });
+        } else {
+            favoritesList.textContent = "You haven't added any favorites yet.";
+        }
+
+        // Add new favorite place
+        function addFavorite() {
+            const newFavorite = document.getElementById('new-favorite').value.trim();
+            if (newFavorite && !favorites.includes(newFavorite)) {
+                favorites.push(newFavorite);
+                localStorage.setItem('favorites', JSON.stringify(favorites));
+
+                const li = document.createElement('li');
+                li.textContent = newFavorite;
+                favoritesList.appendChild(li);
+                alert(`${newFavorite} added to your favorites!`);
+            } else {
+                alert("Please enter a new favorite place.");
+            }
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('user');
+            localStorage.removeItem('favorites');
+            localStorage.removeItem('profilePicture');
+            window.location.href = 'login.html'; // Redirect to login page
+        }
+
+        // Update Username
+        function updateUsername() {
+            const newUsername = document.getElementById('new-username').value.trim();
+            if (newUsername) {
+                localStorage.setItem('user', newUsername);
+                usernameDisplay.textContent = newUsername;
+                alert('Username updated successfully!');
+            } else {
+                alert('Please enter a valid username.');
+            }
+        }
+
+        // Update Profile Picture
+        function updateProfilePicture() {
+            const profileImageInput = document.getElementById('profile-image-input');
+            if (profileImageInput.files && profileImageInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const newProfilePicture = e.target.result;
+                    localStorage.setItem('profilePicture', newProfilePicture);
+                    profilePicture.src = newProfilePicture;
+                    alert('Profile picture updated successfully!');
+                }
+                reader.readAsDataURL(profileImageInput.files[0]);
+            } else {
+                alert('Please select a valid image.');
+            }
+        }
+
+        // Toggle Edit Section
+        function toggleEdit() {
+            if (editSection.style.display === "none") {
+                editSection.style.display = "block";
+            } else {
+                editSection.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
